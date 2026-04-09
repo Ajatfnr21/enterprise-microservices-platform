@@ -1,0 +1,26 @@
+# Enterprise Microservices Platform Configuration
+
+app:
+  name: "Enterprise Microservices Platform"
+  version: "2.0.0"
+  debug: false
+
+features:
+  - Service mesh
+  - Event sourcing
+  - Distributed tracing
+
+tech_stack:
+  - Kubernetes
+  - Istio
+  - Kafka
+  - Jaeger
+
+server:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+
+logging:
+  level: INFO
+  format: "%(asctime)s | %(levelname)s | %(message)s"
