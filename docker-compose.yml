@@ -1,12 +1,43 @@
 version: '3.8'
 
 services:
-  app:
+  gateway:
     build: .
     ports:
       - "8000:8000"
-    volumes:
-      - ./config:/app/config:ro
     environment:
-      - LOG_LEVEL=INFO
-    restart: unless-stopped
+      - REDIS_URL=redis://redis:6379/0
+      - SERVICE_NAME=api-gateway
+      - SERVICE_VERSION=2.0.0
+    depends_on:
+      - redis
+      - consul
+    command: python -m uvicorn services.main:app --host 0.0.0.0 --port 8000 --reload
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  consul:
+    image: consul:1.16
+    ports:
+      - "8500:8500"
+    environment:
+      - CONSUL_BIND_INTERFACE=eth0
+    command: agent -server -ui -node=server-1 -bootstrap-expect=1 -client=0.0.0.0
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"
+      - "14268:14268"
